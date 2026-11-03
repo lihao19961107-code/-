@@ -1,6 +1,7 @@
 """Retrospective research screening; not for live mine safety decisions."""
 import csv, math, statistics
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+from numbers import Real
 
 def read_csv(path):
     observations = []
@@ -23,6 +24,18 @@ def read_csv(path):
 def analyze(observations, threshold=None, min_segment=10, penalty=None):
     if min_segment < 2 or len(observations) < min_segment:
         raise ValueError("Insufficient observations or invalid segment length")
+    # Public API validation: CSV loading already applies similar checks, but
+    # direct callers must not silently produce results from invalid series.
+    previous_day = None
+    for day, value in observations:
+        if not isinstance(day, date) or isinstance(day, datetime):
+            raise ValueError("Observation dates must be datetime.date values")
+        if previous_day is not None and day <= previous_day:
+            raise ValueError("Observation dates must be strictly increasing and unique")
+        if (isinstance(value, bool) or not isinstance(value, Real)
+                or not math.isfinite(value) or value < 0):
+            raise ValueError("Inflow values must be finite nonnegative real numbers")
+        previous_day = day
     y = [x[1] for x in observations]
     n = len(y)
     if penalty is None:

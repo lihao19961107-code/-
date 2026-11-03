@@ -30,6 +30,13 @@ The algorithm minimizes the sum of within-segment squared residuals plus one pen
 
 **Important:** These are statistical candidate changes, not evidence of physical water-flow pathways. Missing days are not imputed. This project must not be used for real-time mine safety alerts, regulatory compliance, or operational flood prevention. The demo is synthetic, not field validation.
 
+
+### Direct Python API and input requirements
+
+`analyze(observations, ...)` accepts a sequence of `(datetime.date, real_number)` pairs in **strictly increasing** date order, with unique dates and finite, nonnegative daily inflow values. Invalid input now raises `ValueError` before segmentation. If reading CSV, use `read_csv(path)` first: it sorts dates and checks for duplicates. Missing calendar dates are reported, not automatically filled.
+
+This input validation improves data integrity; it does not establish field validation or make the software suitable for safety-critical operational decisions.
+
 ## Open source
 
 The project is maintained as an early-stage research utility; contributions and reproducible bug reports are welcome. License: MIT.
